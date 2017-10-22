@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import getQuery from '../helpers/getQuery'
 
 const uri = ''
 
@@ -36,7 +37,8 @@ const fetchWithoutCache = async url => {
 
 const fetchFromServer = useCashe ? fetchWithCache : fetchWithoutCache
 
-export const withData = (url, configObject) => WrapedComp => {
+// configObject.params converts props to an object with parameters
+export const withData = (url, { params, funcName }) => WrapedComp => {
   return class extends Component {
     state = {
       count: null,
@@ -44,6 +46,8 @@ export const withData = (url, configObject) => WrapedComp => {
       time: null,
       loading: true
     }
+
+    static displayName = WrapedComp.name
 
     componentDidMount() {
       this.fetchData(this.props)
@@ -60,13 +64,9 @@ export const withData = (url, configObject) => WrapedComp => {
     }
 
     fetchData = async props => {
-      const params = configObject.params(props)
-      const eURI = encodeURIComponent
-      const suffixUrl = Object.keys(params)
-        .filter(key => !!params[key]) // удаляем пустые значеня
-        .map(key => eURI(key) + '=' + eURI(params[key]))
-        .join('&')
-      this.setState(await fetchFromServer(url + '?' + suffixUrl))
+      this.setState(
+        await fetchFromServer(url + getQuery(funcName, params(props)))
+      )
     }
 
     render() {

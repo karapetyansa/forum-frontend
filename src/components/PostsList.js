@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import ListItem from './PostsItem'
-import { withData } from '../services/getFromApi'
-import Pagination from './Pagination'
 
-const _limit = 5
+import Pagination from './Pagination'
+import { ITEM_ON_PAGE } from '../helpers/constants'
 
 const toListItem = ({ id: key, ...rest }) => <ListItem key={key} {...rest} />
 
@@ -24,25 +23,16 @@ class ListItems extends Component {
   }
 }
 
-const PostsList = ({ loading, data, count, match }) => (
-  <div className="container">
+export default ({ loading, data, count, match }) => (
+  <div>
     <Pagination
       path="/posts"
       current={
         match.params.pageNumber ? Number(match.params.pageNumber) : undefined
       }
       count={count}
-      itemOnPage={_limit}
+      itemOnPage={ITEM_ON_PAGE}
     />
     <ListItems loading={loading} data={data} />
   </div>
 )
-
-const configObject = {
-  params: ({ match }) => ({
-    _page: match.params.pageNumber,
-    _limit
-  })
-}
-
-export default withData('/posts', configObject)(PostsList)
